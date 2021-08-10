@@ -92,12 +92,35 @@ client.on("message", (msg) => {
                 .format("h:mm A")} **(EST)** `
             );
 
+            const kingsCanyonMessage = new Discord.MessageEmbed()
+            .setColor("#FFEE58")
+            .setImage(
+              "https://cdn1.dotesports.com/wp-content/uploads/2019/10/08161402/ApexLegends.jpg"
+            )
+            .setDescription(
+              `**CURRENT MAP**: ${currentMap}\n > Time Remaining: ${remainingTimer} \n **NEXT MAP**: ${nextMap} \n Time: ${moment(
+                nextMapStart
+              )
+                .add(17, "h")
+                .format("h:mm A")} - ${moment(nextMapEnd)
+                .add(17, "h")
+                .format("h:mm A")} **(PST)** \n Time: ${moment(nextMapStart)
+                .add(20, "h")
+                .format("h:mm A")} - ${moment(nextMapEnd)
+                .add(20, "h")
+                .format("h:mm A")} **(EST)** `
+            );
+
           if (currentMap === "World's Edge") {
             msg.reply(worldsEdgeMessage);
           }
 
           if (currentMap === "Olympus") {
             msg.reply(olympusMessage);
+          }
+
+          if (currentMap === "Kings Canyon") {
+            msg.reply(kingsCanyonMessage);
           }
         });
     } catch (e) {
@@ -108,7 +131,7 @@ client.on("message", (msg) => {
   if (
     msg.content.toLowerCase() === "home" ||
     msg.content.toLowerCase() === "!o" ||
-    msg.content.toLowerCase().includes("apex")
+    msg.content.toLowerCase().includes("!apex")
   ) {
     try {
       axios

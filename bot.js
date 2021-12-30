@@ -43,8 +43,7 @@ client.on("message", (msg) => {
         )
         .then((res) => {
           globalResponseData = res;
-          console.log(res.data);
-          console.log(res.data.battle_royale.current.map);
+
           const { map: currentMap, remainingTimer } =
             res?.data?.battle_royale?.current;
           const {
@@ -92,7 +91,7 @@ client.on("message", (msg) => {
                 .format("h:mm A")} **(EST)** `
             );
 
-            const kingsCanyonMessage = new Discord.MessageEmbed()
+          const kingsCanyonMessage = new Discord.MessageEmbed()
             .setColor("#FFEE58")
             .setImage(
               "https://cdn1.dotesports.com/wp-content/uploads/2019/10/08161402/ApexLegends.jpg"
@@ -111,16 +110,61 @@ client.on("message", (msg) => {
                 .format("h:mm A")} **(EST)** `
             );
 
-          if (currentMap === "World's Edge") {
-            msg.reply(worldsEdgeMessage);
-          }
+          const stormPointMsg = new Discord.MessageEmbed()
+            .setColor("#50718C")
+            .setImage(
+              "https://media.contentapi.ea.com/content/dam/apex-legends/common/articles/storm-point/map-blog-thumbnail.png.adapt.1920w.png"
+            )
+            .setDescription(
+              `**CURRENT MAP**: ${currentMap}\n > Time Remaining: ${remainingTimer} \n **NEXT MAP**: ${nextMap} \n Time: ${moment(
+                nextMapStart
+              )
+                .add(17, "h")
+                .format("h:mm A")} - ${moment(nextMapEnd)
+                .add(17, "h")
+                .format("h:mm A")} **(PST)** \n Time: ${moment(nextMapStart)
+                .add(20, "h")
+                .format("h:mm A")} - ${moment(nextMapEnd)
+                .add(20, "h")
+                .format("h:mm A")} **(EST)** `
+            );
 
-          if (currentMap === "Olympus") {
-            msg.reply(olympusMessage);
-          }
+          const defaultMsg = new Discord.MessageEmbed()
+            .setColor("#E99094")
+            .setImage(
+              "https://preview.redd.it/jpxsjxwycf541.jpg?width=960&crop=smart&auto=webp&s=5a16d60576ca9abec9d3074ed5acf74b0d9c5019"
+            )
+            .setDescription(
+              `**CURRENT MAP**: ${currentMap}\n > Time Remaining: ${remainingTimer} \n **NEXT MAP**: ${nextMap} \n Time: ${moment(
+                nextMapStart
+              )
+                .add(17, "h")
+                .format("h:mm A")} - ${moment(nextMapEnd)
+                .add(17, "h")
+                .format("h:mm A")} **(PST)** \n Time: ${moment(nextMapStart)
+                .add(20, "h")
+                .format("h:mm A")} - ${moment(nextMapEnd)
+                .add(20, "h")
+                .format(
+                  "h:mm A"
+                )} **(EST)** \n **KIEN FIX IMAGE - APEX UPDATED !!!!**`
+            );
 
-          if (currentMap === "Kings Canyon") {
-            msg.reply(kingsCanyonMessage);
+          switch (currentMap) {
+            case "World's Edge":
+              msg.reply(worldsEdgeMessage);
+              break;
+            case "Olympus":
+              msg.reply(olympusMessage);
+              break;
+            case "Kings Canyon":
+              msg.reply(kingsCanyonMessage);
+              break;
+            case "Storm Point":
+              msg.reply(stormPointMsg);
+              break;
+            default:
+              msg.reply(defaultMsg);
           }
         });
     } catch (e) {
@@ -157,7 +201,7 @@ client.on("message", (msg) => {
             msg.reply(
               `Not Olympus, there's **${Math.round(
                 remainingSecs / 60
-              )}** minutes left of World's Edge`
+              )}** minutes left of ${currentMap}`
             );
           }
         });

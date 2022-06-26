@@ -92,13 +92,13 @@ client.on("message", (msg) => {
                 `**CURRENT MAP**: ${currentMap}\n > Time Remaining: ${remainingTimer} \n **NEXT MAP**: ${nextMap} \n Time: ${dayjs(
                   nextMapStart
                 )
-                  .utcOffset(11)
+                  .utcOffset(13)
                   .format("h:mm A")} - ${dayjs(nextMapEnd)
-                  .utcOffset(11)
+                  .utcOffset(13)
                   .format("h:mm A")} **(PST)** \n Time: ${dayjs(nextMapStart)
-                  .utcOffset(14)
+                  .utcOffset(16)
                   .format("h:mm A")} - ${dayjs(nextMapEnd)
-                  .utcOffset(14)
+                  .utcOffset(16)
                   .format("h:mm A")} **(EST)** `
               );
 

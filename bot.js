@@ -56,8 +56,12 @@ client.on("message", (msg) => {
             readableDate_start: nextMapStart,
             readableDate_end: nextMapEnd,
           } = res?.data?.battle_royale?.next;
-
           const mapsData = {
+            brokenMoon: {
+              colour: "##0a16fa",
+              imgUrl:
+                "https://cdn1.dotesports.com/wp-content/uploads/2022/10/20144307/Apex-Legends-Broken-Moon-Powerizer-1024x576.jpeg",
+            },
             worldsEdge: {
               colour: "#dd701d",
               imgUrl:
@@ -89,17 +93,19 @@ client.on("message", (msg) => {
               .setColor(colour)
               .setImage(image)
               .setDescription(
-                `**CURRENT MAP**: ${currentMap}\n > Time Remaining: ${remainingTimer} \n **NEXT MAP**: ${nextMap} \n Time: ${dayjs(
+                `**CURRENT MAP**: ${currentMap}\n > Time Remaining: ${remainingTimer} \n **NEXT MAP**: ${nextMap} \n **Time in (PST)**: ${dayjs(
                   nextMapStart
                 )
                   .utcOffset(13)
                   .format("h:mm A")} - ${dayjs(nextMapEnd)
                   .utcOffset(13)
-                  .format("h:mm A")} **(PST)** \n Time: ${dayjs(nextMapStart)
+                  .format("h:mm A")}  \n **Time in (EST)**: ${dayjs(
+                  nextMapStart
+                )
                   .utcOffset(16)
                   .format("h:mm A")} - ${dayjs(nextMapEnd)
                   .utcOffset(16)
-                  .format("h:mm A")} **(EST)** `
+                  .format("h:mm A")}  `
               );
 
           client.user.setActivity(`${currentMap} (${remainingTimer})`);
@@ -126,6 +132,14 @@ client.on("message", (msg) => {
                 generateEmbeddedMsg(
                   mapsData.kingsCanyon.colour,
                   mapsData.kingsCanyon.imgUrl
+                )
+              );
+              break;
+            case "Broken Moon":
+              msg.reply(
+                generateEmbeddedMsg(
+                  mapsData.brokenMoon.colour,
+                  mapsData.brokenMoon.imgUrl
                 )
               );
               break;

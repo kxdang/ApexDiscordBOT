@@ -78,38 +78,42 @@ client.on("message", (msg) => {
   }
 
   if (msg.content.toLowerCase() === "!map") {
-    try {
-      axios
-        .get(
-          `https://api.mozambiquehe.re/maprotation?version=2&auth=${process.env.APEX_TOKEN}`
-        )
-        .then((res) => {
-          globalResponseData = res;
-          const { map: currentMap, remainingTimer } =
-            res?.data?.battle_royale?.current;
+    if (!!globalResponseData) {
+      console.log("already called", globalResponseData.data.battle_royale);
+    } else {
+      try {
+        axios
+          .get(
+            `https://api.mozambiquehe.re/maprotation?version=2&auth=${process.env.APEX_TOKEN}`
+          )
+          .then((res) => {
+            globalResponseData = res;
+            const { map: currentMap, remainingTimer } =
+              res?.data?.battle_royale?.current;
 
-          const {
-            map: nextMap,
-            readableDate_start: nextMapStart,
-            readableDate_end: nextMapEnd,
-          } = res?.data?.battle_royale?.next;
+            const {
+              map: nextMap,
+              start: nextMapStart,
+              end: nextMapEnd,
+            } = res?.data?.battle_royale?.next;
 
-          client.user.setActivity(`${currentMap} (${remainingTimer})`);
+            client.user.setActivity(`${currentMap} (${remainingTimer})`);
 
-          msg.reply(
-            generateEmbeddedMsg(
-              LOCAL_DATA.MAP_DATA[currentMap].colour,
-              LOCAL_DATA.MAP_DATA[currentMap].imgUrl,
-              currentMap,
-              remainingTimer,
-              nextMap,
-              nextMapStart,
-              nextMapEnd
-            )
-          );
-        });
-    } catch (e) {
-      throw e;
+            msg.reply(
+              generateEmbeddedMsg(
+                LOCAL_DATA.MAP_DATA[currentMap].colour,
+                LOCAL_DATA.MAP_DATA[currentMap].imgUrl,
+                currentMap,
+                remainingTimer,
+                nextMap,
+                nextMapStart,
+                nextMapEnd
+              )
+            );
+          });
+      } catch (e) {
+        throw e;
+      }
     }
   }
 

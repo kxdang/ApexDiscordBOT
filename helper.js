@@ -15,29 +15,25 @@ const generateEmbeddedMsg = (
   nextMapEnd,
   ranked
 ) => {
-  const nextMapStartStringPST = dayjs(nextMapStart)
-    .utc("z")
-    .local()
-    .tz("America/Vancouver")
-    .format("h:mm A");
+  const nextMapStartStringPST = () => {
+    let PST = dayjs.unix(nextMapStart).utcOffset(-8);
+    return PST.format("h:mm A");
+  };
 
-  const nextMapEndStringPST = dayjs(nextMapEnd)
-    .utc("z")
-    .local()
-    .tz("America/Vancouver")
-    .format("h:mm A");
+  const nextMapEndStringPST = () => {
+    let PST = dayjs.unix(nextMapEnd).utcOffset(-8);
+    return PST.format("h:mm A");
+  };
 
-  const nextMapStartStringEST = dayjs(nextMapStart)
-    .utc("z")
-    .local()
-    .tz("America/Toronto")
-    .format("h:mm A");
+  const nextMapStartStringEST = () => {
+    let EST = dayjs.unix(nextMapStart).utcOffset(-5);
+    return EST.format("h:mm A");
+  };
 
-  const nextMapEndStringEST = dayjs(nextMapEnd)
-    .utc("z")
-    .local()
-    .tz("America/Toronto")
-    .format("h:mm A");
+  const nextMapEndStringEST = () => {
+    let EST = dayjs.unix(nextMapEnd).utcOffset(-5);
+    return EST.format("h:mm A");
+  };
 
   return new Discord.MessageEmbed()
     .setColor(colour)
@@ -47,7 +43,7 @@ const generateEmbeddedMsg = (
         ranked ? `**CURRENT RANKED MAP**` : `**CURRENT MAP**`
       } : ${currentMap}\n > Time Remaining: ${remainingTimer} \n ${
         ranked ? `**NEXT RANKED MAP**` : `**NEXT MAP**`
-      }: ${nextMap} \n **Time in (PST)**: ${nextMapStartStringPST} - ${nextMapEndStringPST}  \n **Time in (EST)**: ${nextMapStartStringEST} - ${nextMapEndStringEST} `
+      }: ${nextMap} \n **Time in (PST)**: ${nextMapStartStringPST()} - ${nextMapEndStringPST()}  \n **Time in (EST)**: ${nextMapStartStringEST()} - ${nextMapEndStringEST()} `
     );
 };
 

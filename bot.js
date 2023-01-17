@@ -7,6 +7,8 @@ const client = new Discord.Client();
 const dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
 const timezone = require("dayjs/plugin/timezone");
+const relativeTime = require("dayjs/plugin/relativeTime");
+dayjs.extend(relativeTime);
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -76,7 +78,8 @@ client.on("message", (msg) => {
       throw e;
     }
   };
-  if (msg.content.toLowerCase() === "!ranked") {
+
+  fetchRankedData = () => {
     try {
       axios
         .get(
@@ -89,8 +92,8 @@ client.on("message", (msg) => {
 
           const {
             map: nextMap,
-            readableDate_start: nextMapStart,
-            readableDate_end: nextMapEnd,
+            start: nextMapStart,
+            end: nextMapEnd,
           } = res?.data?.ranked?.next;
 
           client.user.setActivity(`${currentMap} (${remainingTimer})`);
@@ -109,6 +112,44 @@ client.on("message", (msg) => {
         });
     } catch (e) {
       throw e;
+    }
+  };
+  if (msg.content.toLowerCase() === "!ranked") {
+    if (globalResponseData) {
+      let timeAPIwasCalled = dayjs(globalResponseData.headers.readableDate_end);
+      let now = dayjs();
+      let timeElapsedInMinutes = now.diff(timeAPIwasCalled, "minute");
+
+      if (timeElapsedInMinutes > 20) {
+        fetchRankedData();
+      } else {
+        const { map: currentMap, end: currentMapEndTime } =
+          globalResponseData?.data?.ranked?.current;
+
+        const {
+          map: nextMap,
+          start: nextMapStart,
+          end: nextMapEnd,
+        } = globalResponseData?.data?.ranked?.next;
+
+        console.log("rankeddata", globalResponseData?.data?.ranked);
+        let timeLeftUntilMapChange = dayjs.unix(currentMapEndTime).fromNow();
+
+        msg.reply(
+          generateEmbeddedMsg(
+            LOCAL_DATA.MAP_DATA[currentMap].colour,
+            LOCAL_DATA.MAP_DATA[currentMap].imgUrl,
+            currentMap,
+            timeLeftUntilMapChange,
+            nextMap,
+            nextMapStart,
+            nextMapEnd,
+            true
+          )
+        );
+      }
+    } else {
+      fetchRankedData();
     }
   }
 
@@ -130,7 +171,7 @@ client.on("message", (msg) => {
           end: nextMapEnd,
         } = globalResponseData?.data?.battle_royale?.next;
 
-        console.log(globalResponseData?.data?.battle_royale);
+        console.log(globalResponseData.data);
 
         let timeUntilMapChange = dayjs
           .unix(currentMapEndTime)
@@ -139,7 +180,9 @@ client.on("message", (msg) => {
         let timeLeftUntilMapChange =
           timeUntilMapChange / 60 < 1
             ? `${timeUntilMapChange} minutes`
-            : `${timeUntilMapChange}h `;
+            : `${Math.floor(timeUntilMapChange / 60)}h ${
+                timeUntilMapChange % 60
+              } minutes`;
 
         msg.reply(
           generateEmbeddedMsg(
@@ -149,8 +192,7 @@ client.on("message", (msg) => {
             timeLeftUntilMapChange,
             nextMap,
             nextMapStart,
-            nextMapEnd,
-            true
+            nextMapEnd
           )
         );
       }

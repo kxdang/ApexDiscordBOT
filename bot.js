@@ -41,6 +41,41 @@ client.on("ready", () => {
 });
 
 client.on("message", (msg) => {
+  fetchUnrankedData = () => {
+    try {
+      axios
+        .get(
+          `https://api.mozambiquehe.re/maprotation?version=2&auth=${process.env.APEX_TOKEN}`
+        )
+        .then((res) => {
+          globalResponseData = res;
+          const { map: currentMap, remainingTimer } =
+            res?.data?.battle_royale?.current;
+
+          const {
+            map: nextMap,
+            start: nextMapStart,
+            end: nextMapEnd,
+          } = res?.data?.battle_royale?.next;
+
+          client.user.setActivity(`${currentMap} (${remainingTimer})`);
+
+          msg.reply(
+            generateEmbeddedMsg(
+              LOCAL_DATA.MAP_DATA[currentMap].colour,
+              LOCAL_DATA.MAP_DATA[currentMap].imgUrl,
+              currentMap,
+              remainingTimer,
+              nextMap,
+              nextMapStart,
+              nextMapEnd
+            )
+          );
+        });
+    } catch (e) {
+      throw e;
+    }
+  };
   if (msg.content.toLowerCase() === "!ranked") {
     try {
       axios
@@ -78,42 +113,49 @@ client.on("message", (msg) => {
   }
 
   if (msg.content.toLowerCase() === "!map") {
-    if (!!globalResponseData) {
-      console.log("already called", globalResponseData.data.battle_royale);
-    } else {
-      try {
-        axios
-          .get(
-            `https://api.mozambiquehe.re/maprotation?version=2&auth=${process.env.APEX_TOKEN}`
+    if (globalResponseData) {
+      let timeAPIwasCalled = dayjs(globalResponseData.headers.readableDate_end);
+      let now = dayjs();
+      let timeElapsedInMinutes = now.diff(timeAPIwasCalled, "minute");
+
+      if (timeElapsedInMinutes > 20) {
+        fetchUnrankedData();
+      } else {
+        const { map: currentMap, end: currentMapEndTime } =
+          globalResponseData?.data?.battle_royale?.current;
+
+        const {
+          map: nextMap,
+          start: nextMapStart,
+          end: nextMapEnd,
+        } = globalResponseData?.data?.battle_royale?.next;
+
+        console.log(globalResponseData?.data?.battle_royale);
+
+        let timeUntilMapChange = dayjs
+          .unix(currentMapEndTime)
+          .diff(now, "minute");
+
+        let timeLeftUntilMapChange =
+          timeUntilMapChange / 60 < 1
+            ? `${timeUntilMapChange} minutes`
+            : `${timeUntilMapChange}h `;
+
+        msg.reply(
+          generateEmbeddedMsg(
+            LOCAL_DATA.MAP_DATA[currentMap].colour,
+            LOCAL_DATA.MAP_DATA[currentMap].imgUrl,
+            currentMap,
+            timeLeftUntilMapChange,
+            nextMap,
+            nextMapStart,
+            nextMapEnd,
+            true
           )
-          .then((res) => {
-            globalResponseData = res;
-            const { map: currentMap, remainingTimer } =
-              res?.data?.battle_royale?.current;
-
-            const {
-              map: nextMap,
-              start: nextMapStart,
-              end: nextMapEnd,
-            } = res?.data?.battle_royale?.next;
-
-            client.user.setActivity(`${currentMap} (${remainingTimer})`);
-
-            msg.reply(
-              generateEmbeddedMsg(
-                LOCAL_DATA.MAP_DATA[currentMap].colour,
-                LOCAL_DATA.MAP_DATA[currentMap].imgUrl,
-                currentMap,
-                remainingTimer,
-                nextMap,
-                nextMapStart,
-                nextMapEnd
-              )
-            );
-          });
-      } catch (e) {
-        throw e;
+        );
       }
+    } else {
+      fetchUnrankedData();
     }
   }
 
